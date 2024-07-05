@@ -1,0 +1,54 @@
+[gd_scene load_steps=4 format=3 uid="uid://bajnlp0yii2c4"]
+
+[ext_resource type="PackedScene" uid="uid://cqbpx666pm3em" path="res://skirt/skirt.tscn" id="2_ta6e2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bclmr"]
+size = Vector3(3, 0.1, 3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_77oey"]
+size = Vector3(3, 0.1, 3)
+
+[node name="main" type="Node3D"]
+
+[node name="camera" type="Camera3D" parent="."]
+transform = Transform3D(0.797479, -0.250922, 0.548694, 8.88178e-16, 0.909418, 0.415884, -0.603347, -0.331659, 0.725241, 0.436507, 0.858011, 0.182824)
+
+[node name="platform" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251587, 0)
+
+[node name="collider" type="CollisionShape3D" parent="platform"]
+shape = SubResource("BoxShape3D_bclmr")
+
+[node name="mesh" type="MeshInstance3D" parent="platform"]
+mesh = SubResource("BoxMesh_77oey")
+
+[node name="light" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.566018, 0.824393, 0, -0.824393, 0.566018, 0, 0, 0)
+shadow_enabled = true
+directional_shadow_max_distance = 10.0
+directional_shadow_pancake_size = 0.0
+
+[node name="skirt" parent="." node_paths=PackedStringArray("_rope", "_skeleton", "_colliders") instance=ExtResource("2_ta6e2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.196245, 0.665145, -0.50348)
+_rope = NodePath("rope")
+_skeleton = NodePath("rig_skirt/Skeleton3D")
+_colliders = [NodePath("bone_collider_1"), NodePath("bone_collider_2"), NodePath("bone_collider_3")]
+
+[node name="control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="label" type="Label" parent="control"]
+layout_mode = 1
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 284.0
+offset_bottom = 111.0
+text = "Left mouse to drag
+Middle mouse to rotate
+Right mouse to move collider
+Middle scroll to change collider size"

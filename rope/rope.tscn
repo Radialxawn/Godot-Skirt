@@ -1,0 +1,50 @@
+[gd_scene load_steps=4 format=3 uid="uid://0nq3fsa5fqtw"]
+
+[ext_resource type="Script" path="res://rope/rope.gd" id="1_p4qe4"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_h3g5d"]
+size = Vector3(0.04, 0.04, 0.04)
+
+[sub_resource type="SphereMesh" id="SphereMesh_eiibi"]
+radius = 0.015
+height = 0.03
+radial_segments = 32
+rings = 16
+
+[node name="rope" type="Node3D"]
+script = ExtResource("1_p4qe4")
+
+[node name="root" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_h3g5d")
+
+[node name="node_1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0488112, 0)
+mesh = SubResource("SphereMesh_eiibi")
+
+[node name="node_2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.107697, 0)
+mesh = SubResource("SphereMesh_eiibi")
+
+[node name="node_3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.157908, 0)
+mesh = SubResource("SphereMesh_eiibi")
+
+[node name="node_4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.214814, 0)
+mesh = SubResource("SphereMesh_eiibi")
+
+[node name="node_5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.27172, 0)
+mesh = SubResource("SphereMesh_eiibi")
+
+[node name="node_6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.328626, 0)
+mesh = SubResource("SphereMesh_eiibi")
+
+[node name="node_7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.392227, 0)
+mesh = SubResource("SphereMesh_eiibi")
+
+[node name="node_8" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.454154, 0)
+mesh = SubResource("SphereMesh_eiibi")
