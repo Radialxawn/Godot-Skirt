@@ -78,7 +78,7 @@ func _solve_collisions():
 			var p: Vector3 = _nearest_point_on_capsule_line(
 				p_tail,
 				_parent.to_local(collider.global_position),
-				_parent.to_local(collider.global_position + collider.global_basis.y),
+				(_parent.global_basis.inverse() * collider.global_basis.y).normalized(),
 				collider.radius,
 				collider.height,
 				)
@@ -108,12 +108,12 @@ func _apply() -> void:
 		_skeleton.set_bone_global_pose_override(_bones[i], tf, 1.0, true)
 
 func _nearest_point_on_capsule_line(_p_: Vector3, _co_: Vector3, _cd_: Vector3, _cr_: float, _ch_: float) -> Vector3:
-	var d_ab = _ch_ - 2.0 * _cr_
-	var d_ao = d_ab * 0.5
-	var a = _co_ - _cd_ * d_ao
-	var b = _co_ + _cd_ * d_ao
-	var ap = _p_ - a
-	var ap_dot_cd = ap.dot(_cd_)
+	var d_ab: float = _ch_ - 2.0 * _cr_
+	var d_ao: float = d_ab * 0.5
+	var a: Vector3 = _co_ - _cd_ * d_ao
+	var b: Vector3 = _co_ + _cd_ * d_ao
+	var ap: Vector3 = _p_ - a
+	var ap_dot_cd: float = ap.dot(_cd_)
 	if ap_dot_cd <= 0.0:
 		return a
 	if ap_dot_cd >= d_ab:
