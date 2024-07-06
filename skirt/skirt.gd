@@ -18,6 +18,7 @@ func _ready() -> void:
 		var bone_chain: BoneChain = BoneChain.new()
 		_bone_chains.append(bone_chain)
 		bone_chain.initialize()
+		bone_chain.parent_set(self)
 		bone_chain.colliders_set(_colliders)
 		bone_chain.skeleton_set(_skeleton, _skeleton.get_parent().position)
 		var i_s: int = _chains[v_i][0]

@@ -1,6 +1,7 @@
 class_name BoneChain
 extends RefCounted
 
+var _parent: Node3D
 var _skeleton: Skeleton3D
 var _skeleton_offset: Vector3
 var _bone_root: int
@@ -20,6 +21,9 @@ func initialize():
 	_pm_solver.step_head_methods.append(_solve_collisions)
 	_pm_solver.step_head_methods.append(_solve_constraints)
 	_pm_solver.step_tail_methods.append(_apply)
+
+func parent_set(_value_: Node3D):
+	_parent = _value_
 
 func colliders_set(_value_: Array[BoneCollider]):
 	_colliders = _value_
@@ -73,8 +77,8 @@ func _solve_collisions():
 			var p_tail: Vector3 = _pm_points[i + 1].p
 			var p: Vector3 = _nearest_point_on_capsule_line(
 				p_tail,
-				collider.position,
-				collider.basis.y,
+				_parent.to_local(collider.global_position),
+				_parent.to_local(collider.global_position + collider.global_basis.y),
 				collider.radius,
 				collider.height,
 				)
