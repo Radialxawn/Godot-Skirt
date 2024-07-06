@@ -96,10 +96,10 @@ func _apply() -> void:
 		var p_head: Vector3 = _pm_points[i].p
 		var p_tail: Vector3 = _pm_points[i + 1].p
 		'''My skirt bone forward direction is y axis, I still not make this universal'''
-		var tf = _look_axis_y(
+		var tf = _transform_from_xy_look_y(
 			p_head - _skeleton_offset,
-			p_tail - p_head,
-			_bone_root_transform_local_base.basis.x
+			_bone_root_transform_local_base.basis.x,
+			p_tail - p_head
 			)
 		_skeleton.set_bone_global_pose_override(_bones[i], tf, 1.0, true)
 
@@ -116,11 +116,11 @@ func _nearest_point_on_capsule_line(_p_: Vector3, _co_: Vector3, _cd_: Vector3, 
 		return b
 	return a + _cd_ * ap_dot_cd
 
-func _look_axis_y(_from_: Vector3, _y_: Vector3, _x_: Vector3) -> Transform3D:
+func _transform_from_xy_look_y(_origin_: Vector3, _x_: Vector3, _y_: Vector3) -> Transform3D:
 	_y_ = _y_.normalized()
 	var z: Vector3 = _y_.cross(_x_).normalized()
 	_x_ = _y_.cross(z).normalized()
-	return Transform3D(_x_, _y_, z, _from_)
+	return Transform3D(_x_, _y_, z, _origin_)
 
 func _move_toward_unclamp(_from_: Vector3, _to_: Vector3, _delta_: float):
 	return _from_ + (_to_ - _from_).normalized() * _delta_

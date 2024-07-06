@@ -30,10 +30,10 @@ func root_move(_delta_: Vector3):
 	_root.position += _delta_
 
 func apply_gravity(_value_: Vector3):
-	_local_gravity = to_local(_value_)
+	_local_gravity = to_local(global_position + _value_)
 
 func apply_force(_value_: Vector3):
-	_local_force = to_local(_value_)
+	_local_force = to_local(global_position + _value_)
 
 func solve(_delta_: float) -> void:
 	_pm_points[0].pin_to(_root.position)

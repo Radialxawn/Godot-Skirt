@@ -122,7 +122,7 @@ func _physics_process(_delta_: float) -> void:
 
 func _solve(_delta_: float) -> void:
 	for chain in _bone_chains:
-		chain.force = to_local(Vector3(0.0, -9.8, 0.0))
+		chain.force = to_local(global_position + Vector3(0.0, -9.8, 0.0))
 		chain.solve()
 
 func _reset():
