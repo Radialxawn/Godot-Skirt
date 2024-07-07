@@ -299,4 +299,4 @@ skin = SubResource("Skin_58aou")
 surface_material_override/0 = ExtResource("4_w38uh")
 
 [node name="rope" parent="." index="1" instance=ExtResource("4_qdnj4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)

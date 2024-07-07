@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://bow41etyuslnw"]
+
+[ext_resource type="Script" path="res://collision_test/capsule_capsule.gd" id="1_6ft2h"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1y27s"]
+radius = 0.2
+height = 1.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_48e2e"]
+
+[node name="capsule_capsule" type="Node3D" node_paths=PackedStringArray("_capsule_a", "_capsule_b")]
+script = ExtResource("1_6ft2h")
+_enabled = true
+_capsule_a = NodePath("static_body_3d/capsule_a")
+_capsule_b = NodePath("static_body_3d/capsule_b")
+
+[node name="static_body_3d" type="StaticBody3D" parent="."]
+
+[node name="capsule_a" type="CollisionShape3D" parent="static_body_3d"]
+transform = Transform3D(0.807496, -0.589873, 0, 0.589873, 0.807496, 0, 0, 0, 1, 0.55536, 0.656658, 0)
+shape = SubResource("CapsuleShape3D_1y27s")
+
+[node name="capsule_b" type="CollisionShape3D" parent="static_body_3d"]
+shape = SubResource("CapsuleShape3D_48e2e")

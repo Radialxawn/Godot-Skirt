@@ -8,9 +8,12 @@ var _bone_root: int
 var _bone_root_transform_local_base: Transform3D
 var _bones: Array[int]
 var _bones_length: Array[float]
+var _bones_radius: Array[float]
 var _bones_transform_local_base: Array[Transform3D]
 var _bones_position_tail_local_base: Array[Vector3]
+
 var _colliders: Array[BoneCollider]
+var _collition_result: BoneCollider.CapsuleCapsuleResult = BoneCollider.CapsuleCapsuleResult.new()
 
 var _pm_solver: PMSolver = PMSolver.new()
 var _pm_points: Array[PMPoint] = []
@@ -18,9 +21,9 @@ var _pm_points: Array[PMPoint] = []
 var force: Vector3
 
 func initialize():
-	_pm_solver.step_head_methods.append(_solve_collisions)
-	_pm_solver.step_head_methods.append(_solve_constraints)
-	_pm_solver.step_tail_methods.append(_apply)
+	_pm_solver.step_methods.append(_solve_collisions)
+	_pm_solver.step_methods.append(_solve_constraints)
+	_pm_solver.step_methods.append(_apply)
 
 func parent_set(_value_: Node3D):
 	_parent = _value_
@@ -41,9 +44,10 @@ func bone_root_set(_index_: int) -> void:
 	pm_point_new.pin_to(pm_point_new.p)
 	_pm_points.append(pm_point_new)
 
-func bones_add(_index_: int, _length_: float) -> void:
+func bones_add(_index_: int, _length_: float, _radius_: float) -> void:
 	_bones.append(_index_)
 	_bones_length.append(_length_)
+	_bones_radius.append(_radius_)
 	var tf: Transform3D = _skeleton.get_bone_global_rest(_index_)
 	tf.origin += _skeleton_offset
 	_bones_transform_local_base.append(tf)
@@ -52,11 +56,17 @@ func bones_add(_index_: int, _length_: float) -> void:
 	pm_point_new.links_add(_pm_points[-1], pm_point_new.p.distance_to(_pm_points[-1].p), 1.0, 1e8)
 	_pm_points.append(pm_point_new)
 
-func snap_back_setup(_strength_: float) -> void:
-	for i in _bones.size():
-		var pm_point_new: PMPoint = PMPoint.new(_bones_position_tail_local_base[i] + Vector3(0.0, -1e-3, 0.0))
+func snap_back_setup(_distances_: Array[float], _strengths_: Array[float]) -> void:
+	var count: int = min(_bones.size(), _distances_.size(), _strengths_.size())
+	for i in count:
+		var normal: Vector3 = _bones_transform_local_base[i].basis.z
+		if i < _bones.size() - 1:
+			normal = (normal + _bones_transform_local_base[i + 1].basis.z).normalized()
+		var pm_point_new: PMPoint = PMPoint.new(
+			_bones_position_tail_local_base[i] + normal * _distances_[i]
+			)
 		pm_point_new.pin_to(pm_point_new.p)
-		pm_point_new.links_add(_pm_points[i + 1], 1e-3, _strength_, 1e8)
+		pm_point_new.links_add(_pm_points[i + 1], _distances_[i], _strengths_[i], 1e8)
 		_pm_points.append(pm_point_new)
 
 func reset() -> void:
@@ -74,17 +84,22 @@ func _solve_collisions():
 	var i_range = range(_bones.size())
 	for collider: BoneCollider in _colliders:
 		for i in i_range:
+			var p_head: Vector3 = _pm_points[i].p
 			var p_tail: Vector3 = _pm_points[i + 1].p
-			var p: Vector3 = _nearest_point_on_capsule_line(
-				p_tail,
+			var hit: bool = BoneCollider.capsule_capsule_check(
+				(p_head + p_tail) * 0.5,
+				p_head.direction_to(p_tail),
+				_bones_radius[i],
+				_bones_length[i],
 				_parent.to_local(collider.global_position),
 				(_parent.global_basis.inverse() * collider.global_basis.y).normalized(),
 				collider.radius,
 				collider.height,
-				)
-			if p.distance_squared_to(p_tail) < collider.radius**2:
-				p_tail = _move_toward_unclamp(p, p_tail, collider.radius)
-				_pm_points[i + 1].p = _move_toward_unclamp(_pm_points[i].p, p_tail, _bones_length[i])
+				_collition_result
+			)
+			if hit:
+				var offset: Vector3 = _collition_result.normal * _collition_result.depth
+				_pm_points[i + 1].p = p_tail + offset
 
 func _solve_constraints() -> void:
 	for i in _bones.size():
@@ -152,5 +167,12 @@ func debug_draw(_parent_: Transform3D):
 			_parent_ * _pm_points[i].p,
 			0.01,
 			Color.from_hsv(float(i) / _pm_points.size(), 0.8, 1.0)
+			)
+	for i in _bones.size():
+		DebugDraw3D.draw_cylinder_ab(
+			_parent_ * _pm_points[i].p,
+			_parent_ * _pm_points[i + 1].p,
+			_bones_radius[i],
+			Color.from_hsv(float(i) / _bones.size(), 0.8, 0.5)
 			)
 #endregion
