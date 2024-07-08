@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://cqbpx666pm3em"]
+[gd_scene load_steps=7 format=3 uid="uid://cqbpx666pm3em"]
 
 [ext_resource type="PackedScene" uid="uid://bysubbggan5xv" path="res://skirt/skirt.glb" id="1_ghfh7"]
-[ext_resource type="Script" path="res://skirt/skirt.gd" id="2_djrxy"]
-[ext_resource type="PackedScene" uid="uid://0nq3fsa5fqtw" path="res://rope/rope.tscn" id="4_qdnj4"]
+[ext_resource type="Script" path="res://skirt/skirt_bone_chain.gd" id="2_djrxy"]
 [ext_resource type="Material" uid="uid://bxjbfka4lwrru" path="res://skirt/skirt.tres" id="4_w38uh"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7klup"]
@@ -141,9 +140,8 @@ bind/36/name = &"skirt.12.R"
 bind/36/bone = -1
 bind/36/pose = Transform3D(-0.980286, 0.0679853, -0.185518, -0.0761843, -0.996392, 0.0374218, -0.182304, 0.0508176, 0.981927, -0.0680943, 0.957997, -0.208378)
 
-[node name="skirt" node_paths=PackedStringArray("_rope", "_skeleton") instance=ExtResource("1_ghfh7")]
+[node name="skirt_bone_chain" node_paths=PackedStringArray("_skeleton") instance=ExtResource("1_ghfh7")]
 script = ExtResource("2_djrxy")
-_rope = NodePath("rope")
 _skeleton = NodePath("rig_skirt/Skeleton3D")
 _chains = Array[Vector2i]([Vector2i(1, 3), Vector2i(4, 3), Vector2i(7, 3), Vector2i(10, 3), Vector2i(13, 3), Vector2i(16, 3), Vector2i(19, 3), Vector2i(22, 3), Vector2i(25, 3), Vector2i(28, 3), Vector2i(31, 3), Vector2i(34, 3)])
 
@@ -297,6 +295,3 @@ bones/35/scale = Vector3(1, 1, 1)
 mesh = SubResource("ArrayMesh_ratbd")
 skin = SubResource("Skin_58aou")
 surface_material_override/0 = ExtResource("4_w38uh")
-
-[node name="rope" parent="." index="1" instance=ExtResource("4_qdnj4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)

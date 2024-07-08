@@ -21,12 +21,12 @@ func _process(_delta_: float) -> void:
 	if hit:
 		DebugDraw3D.scoped_config().set_hd_sphere(false)
 		DebugDraw3D.scoped_config().set_thickness(0.003)
-		var edge: Vector3 = _move_toward_unclamp(_result.nearest_on_b, _result.nearest_on_a, csb.radius)
+		var edge: Vector3 = _move_toward_unclamp(_result.closest_on_b, _result.closest_on_a, csb.radius)
 		DebugDraw3D.draw_sphere(edge, 0.02, Color.BLACK)
 		DebugDraw3D.scoped_config().set_thickness(0.012)
 		DebugDraw3D.draw_line(
 			edge,
-			_move_toward_unclamp(edge, _result.nearest_on_b, _result.depth),
+			_move_toward_unclamp(edge, _result.closest_on_b, _result.depth),
 			Color.BLACK
 			)
 		DebugDraw3D.draw_line(
@@ -37,7 +37,6 @@ func _process(_delta_: float) -> void:
 		var edge_out: Vector3 = edge + _result.normal * _result.depth
 		DebugDraw3D.scoped_config().set_thickness(0.003)
 		DebugDraw3D.draw_sphere(_result.aa, 0.02, Color.GREEN)
-		DebugDraw3D.draw_sphere(edge_out, 0.02, Color.RED)
 		var tf: Transform3D = _capsule_a.global_transform.translated(_result.normal * _result.depth)
 		DebugDraw3D.draw_cylinder(tf.scaled_local(Vector3(csa.radius, csa.height - csa.radius * 2.0, csa.radius)), Color.ORANGE)
 		DebugDraw3D.draw_sphere_xf(

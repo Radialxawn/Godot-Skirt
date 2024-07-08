@@ -7,8 +7,8 @@ class CapsuleCapsuleResult extends RefCounted:
 	var ab: Vector3
 	var ba: Vector3
 	var bb: Vector3
-	var nearest_on_a: Vector3
-	var nearest_on_b: Vector3
+	var closest_on_a: Vector3
+	var closest_on_b: Vector3
 	var normal: Vector3
 
 @export var radius: float = 0.5:
@@ -31,35 +31,10 @@ static func capsule_capsule_check(
 	var ba: Vector3 = _bo_ - b_offset
 	var bb: Vector3 = _bo_ + b_offset
 	#
-	var ba_on_a = closest_point_on_line_segment(ba, aa, ab)
-	var bb_on_a = closest_point_on_line_segment(bb, aa, ab)
-	var aa_on_b = closest_point_on_line_segment(aa, ba, bb)
-	var ab_on_b = closest_point_on_line_segment(ab, ba, bb)
-	var d0: float = (aa_on_b - ba_on_a).length_squared()
-	var d1: float = (ab_on_b - ba_on_a).length_squared()
-	var d2: float = (aa_on_b - bb_on_a).length_squared()
-	var d3: float = (ab_on_b - bb_on_a).length_squared()
-	#
-	var nearest_on_a: Vector3
-	var nearest_on_b: Vector3
-	var d_min: float = 1e16
-	if d0 < d_min:
-		d_min = d0
-		nearest_on_a = ba_on_a
-		nearest_on_b = aa_on_b
-	if d1 < d_min:
-		d_min = d1
-		nearest_on_a = ba_on_a
-		nearest_on_b = ab_on_b
-	if d2 < d_min:
-		d_min = d2
-		nearest_on_a = bb_on_a
-		nearest_on_b = aa_on_b
-	if d3 < d_min:
-		nearest_on_a = bb_on_a
-		nearest_on_b = ab_on_b
-	#
-	_result_.normal = nearest_on_a - nearest_on_b
+	var closests: Array[Vector3] = closest_points_on_line_segments(aa, ab, ba, bb)
+	var closest_on_a: Vector3 = closests[0]
+	var closest_on_b: Vector3 = closests[1]
+	_result_.normal = closest_on_a - closest_on_b
 	var distance: float = _result_.normal.length()
 	_result_.normal /= distance
 	_result_.depth = _ar_ + _br_ - distance
@@ -68,8 +43,8 @@ static func capsule_capsule_check(
 	_result_.ab = ab
 	_result_.ba = aa
 	_result_.bb = ab
-	_result_.nearest_on_a = nearest_on_a
-	_result_.nearest_on_b = nearest_on_b
+	_result_.closest_on_a = closest_on_a
+	_result_.closest_on_b = closest_on_b
 	return _result_.depth > 0.0
 
 static func closest_point_on_line_segment(_p_: Vector3, _a_: Vector3, _b_: Vector3) -> Vector3:
@@ -82,3 +57,17 @@ static func closest_point_on_line_segment(_p_: Vector3, _a_: Vector3, _b_: Vecto
 	if ap_dot_u >= ab.length():
 		return _b_
 	return _a_ + ap_dot_u * u
+
+static func closest_points_on_line_segments(
+	_a_: Vector3, _b_: Vector3, _c_: Vector3, _d_: Vector3
+	) -> Array[Vector3]:
+	var pn: Vector3 = _c_.direction_to(_d_)
+	var a_on_p: Vector3 = _a_ + (_c_ - _a_).dot(pn) * pn
+	var b_on_p: Vector3 = _b_ + (_c_ - _b_).dot(pn) * pn
+	var ab_on_p: Vector3 = b_on_p - a_on_p
+	var t: float = (_c_ - a_on_p).dot(ab_on_p) / ab_on_p.dot(ab_on_p)
+	t = t if a_on_p.distance_squared_to(b_on_p) > 1e-8 else 0.0
+	var ab_to_cd: Vector3 = _a_ + (_b_ - _a_) * clampf(t, 0.0, 1.0)
+	var closest_on_cd: Vector3 = closest_point_on_line_segment(ab_to_cd, _c_, _d_)
+	var closest_on_ab: Vector3 = closest_point_on_line_segment(closest_on_cd, _a_, _b_)
+	return [closest_on_ab, closest_on_cd]
