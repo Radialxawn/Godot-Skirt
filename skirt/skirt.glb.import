@@ -3,7 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bysubbggan5xv"
+uid="uid://brb47epcg8blj"
 path="res://.godot/imported/skirt.glb-1822bc32323d577d636c0bbf1a8cf9cc.scn"
 
 [deps]
@@ -30,20 +30,7 @@ animation/fps=30
 animation/trimming=false
 animation/remove_immutable_tracks=true
 import_script/path=""
-_subresources={
-"meshes": {
-"skirt_skirt_simulate": {
-"generate/lightmap_uv": 0,
-"generate/lods": 0,
-"generate/shadow_meshes": 0,
-"lods/normal_merge_angle": 60.0,
-"lods/normal_split_angle": 25.0,
-"save_to_file/enabled": true,
-"save_to_file/make_streamable": "",
-"save_to_file/path": "res://skirt_simulate.res"
-}
-}
-}
+_subresources={}
 fbx/importer=0
 fbx/allow_geometry_helper_nodes=false
 fbx/embedded_image_handling=1

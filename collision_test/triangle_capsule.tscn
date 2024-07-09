@@ -18,7 +18,7 @@ _capsule = NodePath("static_body_3d/capsule")
 [node name="static_body_3d" type="StaticBody3D" parent="."]
 
 [node name="triangle" type="CollisionShape3D" parent="static_body_3d"]
-transform = Transform3D(0.539297, -0.490624, -0.684432, 0.405104, 0.86368, -0.299913, 0.738274, -0.115524, 0.664534, 0.0629271, 0.540717, 0.284199)
+transform = Transform3D(0.284075, 0.697834, -0.657517, -0.892912, 0.442376, 0.083725, 0.349296, 0.563322, 0.748772, -0.423109, 0.591989, -0.0484768)
 shape = SubResource("ConvexPolygonShape3D_iawm2")
 
 [node name="capsule" type="CollisionShape3D" parent="static_body_3d"]

@@ -14,7 +14,12 @@ var _mouse_motion_time_msec_last: int
 func _ready() -> void:
 	_rope.initialize()
 	_skirt_bone_chain.initialize()
-	_skirt_bone_mesh.intialize()
+	_skirt_bone_mesh.initialize()
+
+func _process(_delta_: float) -> void:
+	_skirt_bone_chain.process(_delta_)
+	_skirt_bone_mesh.process(_delta_)
+	_debug_draw()
 
 func _physics_process(_delta_: float) -> void:
 	_rope.apply_gravity(Vector3(0.0, -9.8, 0.0))
@@ -89,3 +94,24 @@ func _input_mouse_rotate(_mouse_motion_: InputEventMouseMotion) -> void:
 func _camera_project_position(_camera_: Camera3D, _screen_position_: Vector2, _position_: Vector3) -> Vector3:
 	var distance = (_position_ - _camera_.global_position).dot(-_camera_.global_basis.z)
 	return _camera_.project_position(_screen_position_, distance)
+
+func _debug_draw():
+	DebugDraw3D.scoped_config().set_thickness(0.001)
+	for collider: BoneCollider in _colliders:
+		var a: Vector3 = collider.global_basis.y * (collider.height * 0.5 - collider.radius)
+		DebugDraw3D.draw_cylinder_ab(
+			collider.global_position - a,
+			collider.global_position + a,
+			collider.radius,
+			Color.INDIAN_RED
+			)
+		DebugDraw3D.draw_sphere(
+			collider.global_position - a,
+			collider.radius,
+			Color.INDIAN_RED
+			)
+		DebugDraw3D.draw_sphere(
+			collider.global_position + a,
+			collider.radius,
+			Color.INDIAN_RED
+			)

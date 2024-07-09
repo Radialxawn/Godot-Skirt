@@ -13,14 +13,16 @@ var _bones_transform_local_base: Array[Transform3D]
 var _bones_position_tail_local_base: Array[Vector3]
 
 var _colliders: Array[BoneCollider]
-var _collition_result: BoneCollider.CapsuleCapsuleResult = BoneCollider.CapsuleCapsuleResult.new()
+var _collition_result: BoneCollider.CapsuleCapsuleResult
 
-var _pm_solver: PMSolver = PMSolver.new()
+var _pm_solver: PMSolver
 var _pm_points: Array[PMPoint] = []
 
 var force: Vector3
 
 func initialize():
+	_pm_solver = PMSolver.new()
+	_collition_result = BoneCollider.CapsuleCapsuleResult.new()
 	_pm_solver.step_methods.append(_solve_collisions)
 	_pm_solver.step_methods.append(_solve_constraints)
 	_pm_solver.step_methods.append(_apply)

@@ -1,12 +1,13 @@
 [gd_scene load_steps=4 format=3 uid="uid://dvg7fo7ipa4hm"]
 
-[ext_resource type="PackedScene" uid="uid://bysubbggan5xv" path="res://skirt/skirt.glb" id="1_u0355"]
+[ext_resource type="PackedScene" uid="uid://brb47epcg8blj" path="res://skirt/skirt.glb" id="1_u0355"]
 [ext_resource type="Script" path="res://skirt/skirt_bone_mesh.gd" id="2_j3djy"]
 [ext_resource type="Material" uid="uid://bxjbfka4lwrru" path="res://skirt/skirt.tres" id="3_ocims"]
 
 [node name="skirt_bone_mesh" node_paths=PackedStringArray("_skeleton") instance=ExtResource("1_u0355")]
 script = ExtResource("2_j3djy")
 _skeleton = NodePath("rig_skirt/Skeleton3D")
+_chains = Array[Vector2i]([Vector2i(22, 3), Vector2i(18, 3), Vector2i(14, 3), Vector2i(10, 3), Vector2i(6, 3), Vector2i(2, 3), Vector2i(26, 3), Vector2i(30, 3), Vector2i(34, 3), Vector2i(38, 3), Vector2i(42, 3), Vector2i(46, 3)])
 
 [node name="rig_skirt" parent="." index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.123, -0.063)

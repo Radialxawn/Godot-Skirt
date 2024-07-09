@@ -49,10 +49,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.6, -0.5)
 _skeleton = NodePath("rig_skirt/Skeleton3D")
 _colliders = [NodePath("../bone_collider_3/bone_collider_1"), NodePath("../bone_collider_3/bone_collider_2"), NodePath("../bone_collider_3")]
+_debug = true
 
 [node name="skirt_bone_mesh" parent="." node_paths=PackedStringArray("_skeleton") instance=ExtResource("4_tqab7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.6, -0.5)
 _skeleton = NodePath("rig_skirt/Skeleton3D")
+_debug = true
 
 [node name="bone_collider_3" type="Node3D" parent="."]
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0.168, -0.522)
