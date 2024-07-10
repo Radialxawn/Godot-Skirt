@@ -22,8 +22,8 @@ func _physics_process(_delta_: float) -> void:
 		_result
 		)
 	if hit:
-		for i in 20:
-			var s = float(i + 1) / 20.0
+		for i: int in 20:
+			var s: float = float(i + 1) / 20.0
 			for j in 3:
 				DebugDraw3D.draw_line(
 					_triangle.to_global(tri.points[wrapi(j, 0, 3)] * s) + _result.normal * _result.depth,

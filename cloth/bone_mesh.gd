@@ -23,7 +23,7 @@ var force: Vector3
 
 func initialize() -> void:
 	_chains.clear()
-	_pm_solver = PMSolver.new(33, 3)
+	_pm_solver = PMSolver.new(16, 3)
 	_pm_points.clear()
 	_pm_solver.step_methods.append(_solve_collisions)
 	_pm_solver.step_methods.append(_solve_constraints)
@@ -88,8 +88,24 @@ func generate_cross_links(_stiffness_: float) -> void:
 			var ib: PMPoint = _pm_points[chain_last.pm_point_indexs[i + 1]]
 			var ic: PMPoint = _pm_points[chain.pm_point_indexs[i]]
 			var id: PMPoint = _pm_points[chain.pm_point_indexs[i + 1]]
+			# cross
 			ia.links_add(id, ia.p.distance_to(id.p), _stiffness_, 1e8)
 			ib.links_add(ic, ib.p.distance_to(ic.p), _stiffness_, 1e8)
+			# parallel
+			ia.links_add(ic, ia.p.distance_to(ic.p), _stiffness_, 1e8)
+			ib.links_add(id, ib.p.distance_to(id.p), _stiffness_, 1e8)
+
+func generate_clamp(_distance_curve_: Curve, _stiffness_curve_: Curve) -> void:
+	for chain: Chain in _chains:
+		for i in chain.indexs.size():
+			var t: float = float(i) / (chain.indexs.size() - 1.0)
+			var distance: float = _distance_curve_.sample(t)
+			var stiffness: float = _stiffness_curve_.sample(t)
+			var pm: PMPoint = _pm_points[chain.pm_point_indexs[i + 1]]
+			var pmc: PMPoint = PMPoint.new(pm.p + chain.transform_local_bases[i].basis.z * distance)
+			_pm_points.append(pmc)
+			pmc.pin_to(pmc.p)
+			pmc.links_add(pm, distance, stiffness, 1e8)
 
 func solve() -> void:
 	for pm_point: PMPoint in _pm_points:
@@ -139,13 +155,8 @@ func _transform_from_xy_look_y(_origin_: Vector3, _x_: Vector3, _y_: Vector3) ->
 #region debug
 func debug_draw() -> void:
 	DebugDraw3D.scoped_config().set_thickness(0.001)
-	for chain: Chain in _chains:
-		for tail: Vector3 in chain.position_tail_local_bases:
-			DebugDraw3D.draw_sphere(tail, 0.002, Color.BLACK)
-		for tf: Transform3D in chain.transform_local_bases:
-			DebugDraw3D.draw_box_xf(tf.scaled_local(Vector3(0.01, 0.01, 0.01)), Color.BLACK)
-		for pmi: int in chain.pm_point_indexs:
-			DebugDraw3D.draw_sphere(_pm_points[pmi].p, 0.004, Color.GREEN)
+	for pm: PMPoint in _pm_points:
+		DebugDraw3D.draw_sphere(_parent.to_global(pm.p), 0.002, Color.BLACK)
 	for i: int in range(0, _triangles.size(), 3):
 		_draw_triangle(
 			_parent.to_global(_pm_points[_triangles[i]].p),

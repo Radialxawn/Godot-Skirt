@@ -5,6 +5,8 @@ extends Node3D
 @export var _skeleton: Skeleton3D
 @export var _chains: Array[Vector2i]
 @export var _colliders: Array[BoneCollider]
+@export var _distance_curve: Curve
+@export var _stiffness_curve: Curve
 
 var _bone_mesh: BoneMesh
 
@@ -24,7 +26,8 @@ func initialize() -> void:
 			else:
 				_bone_mesh.bones_add(v[0] + i, 0.12)
 	_bone_mesh.generate_triangles()
-	_bone_mesh.generate_cross_links(0.1)
+	_bone_mesh.generate_cross_links(1.0)
+	_bone_mesh.generate_clamp(_distance_curve, _stiffness_curve)
 	if not Engine.is_editor_hint():
 		set_process(false)
 		set_physics_process(false)
