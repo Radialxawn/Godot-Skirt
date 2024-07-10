@@ -17,22 +17,26 @@ var _triangles: Array[int]
 var _pm_solver: PMSolver
 var _pm_points: Array[PMPoint]
 
+var _collision_result: BoneCollider.TriangleCapsuleResult
+
 var force: Vector3
 
 func initialize() -> void:
-	_chains = []
-	_pm_solver = PMSolver.new()
+	_chains.clear()
+	_pm_solver = PMSolver.new(33, 3)
+	_pm_points.clear()
 	_pm_solver.step_methods.append(_solve_collisions)
 	_pm_solver.step_methods.append(_solve_constraints)
 	_pm_solver.step_methods.append(_apply)
+	_collision_result = BoneCollider.TriangleCapsuleResult.new()
 
-func parent_set(_value_: Node3D):
+func parent_set(_value_: Node3D) -> void:
 	_parent = _value_
 
-func colliders_set(_value_: Array[BoneCollider]):
+func colliders_set(_value_: Array[BoneCollider]) -> void:
 	_colliders = _value_
 
-func skeleton_set(_skeleton_: Skeleton3D, _skeleton_offset_: Vector3):
+func skeleton_set(_skeleton_: Skeleton3D, _skeleton_offset_: Vector3) -> void:
 	_skeleton = _skeleton_
 	_skeleton_offset = _skeleton_offset_
 
@@ -61,18 +65,31 @@ func bones_add(_index_: int, _length_: float) -> void:
 		_pm_points[-2].links_add(_pm_points[-1], _pm_points[-2].p.distance_to(_pm_points[-1].p), 1.0, 1e8)
 		chain.lengths.append(_length_)
 
-func generate() -> void:
+func generate_triangles() -> void:
 	_triangles = []
-	for i_c in _chains.size():
-		var chain_last: Chain = _chains[i_c - 1]
-		var chain: Chain = _chains[i_c]
+	for ci: int in _chains.size():
+		var chain_last: Chain = _chains[ci - 1]
+		var chain: Chain = _chains[ci]
 		var count: int = mini(chain_last.indexs.size(), chain.indexs.size())
-		for i in count:
+		for i: int in count:
 			var ia: int = chain_last.pm_point_indexs[i]
 			var ib: int = chain_last.pm_point_indexs[i + 1]
 			var ic: int = chain.pm_point_indexs[i]
 			var id: int = chain.pm_point_indexs[i + 1]
 			_triangles.append_array([ia, ic, ib, ib, ic, id])
+
+func generate_cross_links(_stiffness_: float) -> void:
+	for ci: int in _chains.size():
+		var chain_last: Chain = _chains[ci - 1]
+		var chain: Chain = _chains[ci]
+		var count: int = mini(chain_last.indexs.size() - 1, chain.indexs.size() - 1)
+		for i: int in count:
+			var ia: PMPoint = _pm_points[chain_last.pm_point_indexs[i]]
+			var ib: PMPoint = _pm_points[chain_last.pm_point_indexs[i + 1]]
+			var ic: PMPoint = _pm_points[chain.pm_point_indexs[i]]
+			var id: PMPoint = _pm_points[chain.pm_point_indexs[i + 1]]
+			ia.links_add(id, ia.p.distance_to(id.p), _stiffness_, 1e8)
+			ib.links_add(ic, ib.p.distance_to(ic.p), _stiffness_, 1e8)
 
 func solve() -> void:
 	for pm_point: PMPoint in _pm_points:
@@ -80,16 +97,47 @@ func solve() -> void:
 	_pm_solver.process(_pm_points)
 
 func _solve_collisions() -> void:
-	pass
+	for i: int in range(0, _triangles.size(), 3):
+		for collider: BoneCollider in _colliders:
+			var hit: bool = BoneCollider.triangle_capsule_check(
+				_pm_points[_triangles[i]].p,
+				_pm_points[_triangles[i + 1]].p,
+				_pm_points[_triangles[i + 2]].p,
+				_parent.to_local(collider.global_position),
+				(_parent.global_basis.inverse() * collider.global_basis.y).normalized(),
+				collider.radius,
+				collider.height,
+				_collision_result
+				)
+			if hit:
+				var offset: Vector3 = _collision_result.normal * _collision_result.depth
+				_pm_points[_triangles[i]].p += offset
+				_pm_points[_triangles[i + 1]].p += offset
+				_pm_points[_triangles[i + 2]].p += offset
 
 func _solve_constraints() -> void:
 	pass
 
 func _apply() -> void:
-	pass
+	for chain: Chain in _chains:
+		for i: int in chain.indexs.size():
+			var p_head: Vector3 = _pm_points[chain.pm_point_indexs[i]].p
+			var p_tail: Vector3 = _pm_points[chain.pm_point_indexs[i + 1]].p
+			var tf: Transform3D = _transform_from_xy_look_y(
+				p_head - _skeleton_offset,
+				-chain.transform_local_bases[i].basis.x,
+				p_tail - p_head
+				)
+			_skeleton.set_bone_global_pose_override(chain.indexs[i], tf, 1.0, true)
+
+func _transform_from_xy_look_y(_origin_: Vector3, _x_: Vector3, _y_: Vector3) -> Transform3D:
+	_y_ = _y_.normalized()
+	var z: Vector3 = _y_.cross(_x_).normalized()
+	_x_ = _y_.cross(z).normalized()
+	return Transform3D(_x_, _y_, z, _origin_)
 
 #region debug
-func debug_draw():
+func debug_draw() -> void:
 	DebugDraw3D.scoped_config().set_thickness(0.001)
 	for chain: Chain in _chains:
 		for tail: Vector3 in chain.position_tail_local_bases:
@@ -98,7 +146,7 @@ func debug_draw():
 			DebugDraw3D.draw_box_xf(tf.scaled_local(Vector3(0.01, 0.01, 0.01)), Color.BLACK)
 		for pmi: int in chain.pm_point_indexs:
 			DebugDraw3D.draw_sphere(_pm_points[pmi].p, 0.004, Color.GREEN)
-	for i in range(0, _triangles.size(), 3):
+	for i: int in range(0, _triangles.size(), 3):
 		_draw_triangle(
 			_parent.to_global(_pm_points[_triangles[i]].p),
 			_parent.to_global(_pm_points[_triangles[i + 1]].p),
@@ -107,13 +155,13 @@ func debug_draw():
 			Color.from_hsv(1.0 * i / _triangles.size(), 0.8, 0.9)
 			)
 
-static func _draw_triangle(_a_: Vector3, _b_: Vector3, _c_: Vector3, _scale_: float, _color_: Color):
-	var center = (_a_ + _b_ + _c_) / 3.0
+static func _draw_triangle(_a_: Vector3, _b_: Vector3, _c_: Vector3, _scale_: float, _color_: Color) -> void:
+	var center: Vector3 = (_a_ + _b_ + _c_) / 3.0
 	_a_ = center + (_a_ - center) * _scale_
 	_b_ = center + (_b_ - center) * _scale_
 	_c_ = center + (_c_ - center) * _scale_
 	DebugDraw3D.draw_line(_a_, _b_, _color_)
 	DebugDraw3D.draw_line(_b_, _c_, _color_)
 	DebugDraw3D.draw_line(_c_, _a_, _color_)
-	DebugDraw3D.draw_line(center, center + (_c_ - _a_).cross(_b_ - _a_).normalized() * 0.03, _color_)
+	#DebugDraw3D.draw_line(center, center + (_c_ - _a_).cross(_b_ - _a_).normalized() * 0.03, _color_)
 #endregion

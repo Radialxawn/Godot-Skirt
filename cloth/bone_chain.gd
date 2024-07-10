@@ -13,27 +13,28 @@ var _bones_transform_local_base: Array[Transform3D]
 var _bones_position_tail_local_base: Array[Vector3]
 
 var _colliders: Array[BoneCollider]
-var _collition_result: BoneCollider.CapsuleCapsuleResult
+var _collision_result: BoneCollider.CapsuleCapsuleResult
 
 var _pm_solver: PMSolver
-var _pm_points: Array[PMPoint] = []
+var _pm_points: Array[PMPoint]
 
 var force: Vector3
 
-func initialize():
-	_pm_solver = PMSolver.new()
-	_collition_result = BoneCollider.CapsuleCapsuleResult.new()
+func initialize() -> void:
+	_pm_solver = PMSolver.new(16, 3)
+	_pm_points.clear()
+	_collision_result = BoneCollider.CapsuleCapsuleResult.new()
 	_pm_solver.step_methods.append(_solve_collisions)
 	_pm_solver.step_methods.append(_solve_constraints)
 	_pm_solver.step_methods.append(_apply)
 
-func parent_set(_value_: Node3D):
+func parent_set(_value_: Node3D) -> void:
 	_parent = _value_
 
-func colliders_set(_value_: Array[BoneCollider]):
+func colliders_set(_value_: Array[BoneCollider]) -> void:
 	_colliders = _value_
 
-func skeleton_set(_skeleton_: Skeleton3D, _skeleton_offset_: Vector3):
+func skeleton_set(_skeleton_: Skeleton3D, _skeleton_offset_: Vector3) -> void:
 	_skeleton = _skeleton_
 	_skeleton_offset = _skeleton_offset_
 
@@ -60,7 +61,7 @@ func bones_add(_index_: int, _length_: float, _radius_: float) -> void:
 
 func snap_back_setup(_distances_: Array[float], _strengths_: Array[float]) -> void:
 	var count: int = min(_bones.size(), _distances_.size(), _strengths_.size())
-	for i in count:
+	for i: int in count:
 		var normal: Vector3 = _bones_transform_local_base[i].basis.z
 		if i < _bones.size() - 1:
 			normal = (normal + _bones_transform_local_base[i + 1].basis.z).normalized()
@@ -72,20 +73,20 @@ func snap_back_setup(_distances_: Array[float], _strengths_: Array[float]) -> vo
 		_pm_points.append(pm_point_new)
 
 func reset() -> void:
-	for i in _bones.size():
+	for i: int in _bones.size():
 		_skeleton.reset_bone_pose(_bones[i])
 		_pm_points[i + 1].p = _bones_position_tail_local_base[i]
 	_apply()
 
-func solve():
+func solve() -> void:
 	for pm_point: PMPoint in _pm_points:
 		pm_point.apply_force(force)
 	_pm_solver.process(_pm_points)
 
-func _solve_collisions():
-	var i_range = range(_bones.size())
+func _solve_collisions() -> void:
+	var i_range: Array = range(_bones.size())
 	for collider: BoneCollider in _colliders:
-		for i in i_range:
+		for i: int in i_range:
 			var p_head: Vector3 = _pm_points[i].p
 			var p_tail: Vector3 = _pm_points[i + 1].p
 			var hit: bool = BoneCollider.capsule_capsule_check(
@@ -97,14 +98,14 @@ func _solve_collisions():
 				(_parent.global_basis.inverse() * collider.global_basis.y).normalized(),
 				collider.radius,
 				collider.height,
-				_collition_result
+				_collision_result
 			)
 			if hit:
-				var offset: Vector3 = _collition_result.normal * _collition_result.depth
+				var offset: Vector3 = _collision_result.normal * _collision_result.depth
 				_pm_points[i + 1].p = p_tail + offset
 
 func _solve_constraints() -> void:
-	for i in _bones.size():
+	for i: int in _bones.size():
 		var p_tail: Vector3 = _pm_points[i + 1].p
 		var plane_o: Vector3 = _bones_transform_local_base[i].origin
 		var plane_n: Vector3 = _bones_transform_local_base[i].basis.x
@@ -112,12 +113,12 @@ func _solve_constraints() -> void:
 		_pm_points[i + 1].p = p_tail.lerp(p_tail_on_plane, 0.5)
 
 func _apply() -> void:
-	var count = _bones.size()
-	for i in count:
+	var count: int = _bones.size()
+	for i: int in count:
 		var p_head: Vector3 = _pm_points[i].p
 		var p_tail: Vector3 = _pm_points[i + 1].p
 		'''My skirt bone forward direction is y axis, I still not make this universal'''
-		var tf = _transform_from_xy_look_y(
+		var tf: Transform3D = _transform_from_xy_look_y(
 			p_head - _skeleton_offset,
 			_bone_root_transform_local_base.basis.x,
 			p_tail - p_head
@@ -143,7 +144,7 @@ func _transform_from_xy_look_y(_origin_: Vector3, _x_: Vector3, _y_: Vector3) ->
 	_x_ = _y_.cross(z).normalized()
 	return Transform3D(_x_, _y_, z, _origin_)
 
-func _move_toward_unclamp(_from_: Vector3, _to_: Vector3, _delta_: float):
+func _move_toward_unclamp(_from_: Vector3, _to_: Vector3, _delta_: float) -> Vector3:
 	return _from_ + (_to_ - _from_).normalized() * _delta_
 
 func _move_toward_on_sphere(_from_: Vector3, _to_: Vector3, _center_: Vector3, _delta_: float) -> Vector3:
@@ -162,15 +163,15 @@ func _move_toward_on_sphere(_from_: Vector3, _to_: Vector3, _center_: Vector3, _
 	return _center_ + cf.rotated(cf.cross(ct).normalized(), delta_alpha).normalized() * r_n
 
 #region debug
-func debug_draw(_parent_: Transform3D):
+func debug_draw(_parent_: Transform3D) -> void:
 	DebugDraw3D.scoped_config().set_thickness(0.001)
-	for i in _pm_points.size():
+	for i: int in _pm_points.size():
 		DebugDraw3D.draw_sphere(
 			_parent_ * _pm_points[i].p,
 			0.01,
 			Color.from_hsv(float(i) / _pm_points.size(), 0.8, 1.0)
 			)
-	for i in _bones.size():
+	for i: int in _bones.size():
 		DebugDraw3D.draw_cylinder_ab(
 			_parent_ * _pm_points[i].p,
 			_parent_ * _pm_points[i + 1].p,

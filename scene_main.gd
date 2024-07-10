@@ -70,21 +70,21 @@ func _input_mouse_move(_mouse_motion_: InputEventMouseMotion) -> void:
 	_mouse_motion_time_msec_last = Time.get_ticks_msec()
 
 func _input_mouse_move_collider(_mouse_motion_: InputEventMouseMotion) -> void:
-	var camera = get_viewport().get_camera_3d()
-	var target = _colliders[-1]
-	var delta = (_camera_project_position(camera, _mouse_motion_.position, target.global_position)
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	var target: BoneCollider = _colliders[-1]
+	var delta: Vector3 = (_camera_project_position(camera, _mouse_motion_.position, target.global_position)
 		- _camera_project_position(camera, _mouse_data_begin.position, target.global_position)
 		)
 	target.global_position = _mouse_data_begin.target_position_collider + delta
 
 func _input_mouse_rotate(_mouse_motion_: InputEventMouseMotion) -> void:
-	var camera = get_viewport().get_camera_3d()
+	var camera: Camera3D = get_viewport().get_camera_3d()
 	var delta_mouse: Vector2 = _mouse_motion_.position - _mouse_data_begin.position
 	var u: Vector2 = delta_mouse.normalized()
 	var n: Vector2 = Vector2(u.y, -u.x)
 	var size: Vector2 = get_viewport().get_visible_rect().size
-	var delta_rad = remap(delta_mouse.length(), 0, size.x, 0, PI)
-	var quat = Quaternion(
+	var delta_rad: float = remap(delta_mouse.length(), 0, size.x, 0, PI)
+	var quat: Quaternion = Quaternion(
 		_camera_project_position(camera, _mouse_data_begin.position, _camera_origin.global_position)
 			.direction_to(_camera_project_position(camera, _mouse_data_begin.position + n, _camera_origin.global_position)),
 		-delta_rad
@@ -92,10 +92,10 @@ func _input_mouse_rotate(_mouse_motion_: InputEventMouseMotion) -> void:
 	_camera_origin.quaternion = quat * _mouse_data_begin.target_quaternion
 
 func _camera_project_position(_camera_: Camera3D, _screen_position_: Vector2, _position_: Vector3) -> Vector3:
-	var distance = (_position_ - _camera_.global_position).dot(-_camera_.global_basis.z)
+	var distance: float = (_position_ - _camera_.global_position).dot(-_camera_.global_basis.z)
 	return _camera_.project_position(_screen_position_, distance)
 
-func _debug_draw():
+func _debug_draw() -> void:
 	DebugDraw3D.scoped_config().set_thickness(0.001)
 	for collider: BoneCollider in _colliders:
 		var a: Vector3 = collider.global_basis.y * (collider.height * 0.5 - collider.radius)

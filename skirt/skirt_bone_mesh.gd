@@ -14,25 +14,26 @@ func initialize() -> void:
 	_bone_mesh.parent_set(self)
 	_bone_mesh.colliders_set(_colliders)
 	_bone_mesh.skeleton_set(_skeleton, _skeleton.get_parent().position)
-	for v_i in _chains.size():
-		var v: Vector2i = _chains[v_i]
-		for i in v[1]:
+	for vi: int in _chains.size():
+		var v: Vector2i = _chains[vi]
+		for i: int in v[1]:
 			if i == 0:
 				_bone_mesh.bones_add(v[0] + i, 0.0)
 			elif i < v[1] - 1:
 				_bone_mesh.bones_add(v[0] + i, -1.0)
 			else:
 				_bone_mesh.bones_add(v[0] + i, 0.12)
-	_bone_mesh.generate()
+	_bone_mesh.generate_triangles()
+	_bone_mesh.generate_cross_links(0.1)
 	if not Engine.is_editor_hint():
 		set_process(false)
 		set_physics_process(false)
 
 func physics_process(_delta_: float) -> void:
-	_bone_mesh.force = global_basis.inverse() * Vector3(0.0, -5.0, 5.0)
+	_bone_mesh.force = global_basis.inverse() * Vector3(0.0, -9.8, 0.0)
 	_bone_mesh.solve()
 
-func process(delta: float) -> void:
+func process(_delta_: float) -> void:
 	if not _debug:
 		return
 	_bone_mesh.debug_draw()

@@ -15,6 +15,10 @@ run/main_scene="res://scene_main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[debug]
+
+gdscript/warnings/untyped_declaration=2
+
 [editor]
 
 naming/node_name_casing=2

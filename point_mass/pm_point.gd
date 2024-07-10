@@ -17,7 +17,7 @@ func _init(_position_: Vector3) -> void:
 func process(_delta_: float) -> void:
 	var v: Vector3 = p - _p_last
 	v *= 0.99
-	var delta_sq = _delta_ * _delta_
+	var delta_sq: float = _delta_ * _delta_
 	var p_next: Vector3 = p + v + 0.5 * _accel * delta_sq
 	_p_last = p
 	p = p_next

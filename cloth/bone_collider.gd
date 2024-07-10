@@ -33,7 +33,7 @@ class TriangleCapsuleResult extends RefCounted:
 	set(_value_):
 		_bone_name = _value_
 		if is_instance_valid(_skeleton):
-			var bone_index = _skeleton.find_bone(_value_)
+			var bone_index: int = _skeleton.find_bone(_value_)
 			if bone_index != -1:
 				_bone_index = bone_index
 				_bone_name = _value_

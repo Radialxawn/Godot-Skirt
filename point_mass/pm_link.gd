@@ -15,13 +15,13 @@ func _init(_p1_: PMPoint, _p2_: PMPoint, _distance_: float, _stiffness_: float, 
 	stiffness = _stiffness_
 	tear_distance = _tear_distance_
 
-func solve():
+func solve() -> void:
 	# calculate difference
 	var delta_p: Vector3 = _p1.p - _p2.p
 	var d: float = delta_p.length()
 	if d > tear_distance:
 		_p1.remove_link(self)
-	var d_rest = (distance - d) / d;
+	var d_rest: float = (distance - d) / d;
 	# inverse mass
 	var im1: float = 1.0 / _p1.mass
 	var im2: float = 1.0 / _p2.mass

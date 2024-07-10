@@ -10,13 +10,13 @@ var _sub_step_count: int
 
 var step_methods: Array[Callable]
 
-func _init() -> void:
-	_time_delta_msec = 16
+func _init(_time_delta_msec_: int, _sub_step_count_: int) -> void:
+	_time_delta_msec = clampi(_time_delta_msec_, 10, 33)
 	_time_delta_msec_left_over = 0
 	_time_delta_sec = float(_time_delta_msec) * 1e-3
-	_sub_step_count = 3
+	_sub_step_count = clampi(_sub_step_count_, 1, 10)
 
-func process(_points_: Array[PMPoint]):
+func process(_points_: Array[PMPoint]) -> void:
 	_time = Time.get_ticks_msec()
 	var delta_time_msec: int = _time - _time_last
 	_time_last = _time
